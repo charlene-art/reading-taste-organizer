@@ -1,18 +1,31 @@
 import Link from "next/link";
 import { getInsightAggregates } from "@/lib/insights-stats";
 import { getClusterGroups } from "@/lib/cluster-display";
+import { suggestK } from "@/lib/clustering";
+import { prisma } from "@/lib/db";
 import { ToneBarChart, PlotPatternBarChart } from "@/components/InsightCharts";
-import { ReclusterButton } from "@/components/ReclusterButton";
+import { ClusterRecomputeToolbar } from "@/components/ClusterRecomputeToolbar";
 import { WritingPromptsButton } from "@/components/WritingPromptsButton";
 
 /** Always read fresh DB data (Vercel otherwise prerenders this page at build time). */
 export const dynamic = "force-dynamic";
 
 export default async function InsightsPage() {
-  const [agg, clusters] = await Promise.all([
+  const [agg, clusters, booksWithEmbeddings] = await Promise.all([
     getInsightAggregates(),
     getClusterGroups(),
+    prisma.book.count({
+      where: {
+        analyses: {
+          some: {
+            embeddingJson: { not: null },
+          },
+        },
+      },
+    }),
   ]);
+
+  const suggestedK = suggestK(booksWithEmbeddings);
 
   return (
     <div className="space-y-12">
@@ -27,12 +40,16 @@ export default async function InsightsPage() {
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-lg font-medium">Thematic clusters</h2>
-          <ReclusterButton />
+          <ClusterRecomputeToolbar
+            key={`${booksWithEmbeddings}-${suggestedK}`}
+            booksWithEmbeddings={booksWithEmbeddings}
+            suggestedK={suggestedK}
+          />
         </div>
         <p className="text-sm text-[var(--muted)]">
           Clusters are computed from embeddings of each book&apos;s analysis.
-          Analyze books first, then recompute. Names combine frequent themes and
-          a short model label when enabled.
+          Choose how many groups you want, then recompute. Names combine frequent
+          themes and a short model label when enabled.
         </p>
         {clusters.length === 0 ? (
           <p className="text-sm text-[var(--muted)]">
@@ -40,7 +57,7 @@ export default async function InsightsPage() {
             clusters&quot;.
           </p>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
             {clusters.map((c) => (
               <div
                 key={c.index}

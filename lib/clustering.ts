@@ -94,5 +94,12 @@ export function kMeansCosine(
 export function suggestK(nBooks: number): number {
   if (nBooks <= 2) return nBooks;
   const raw = Math.round(Math.sqrt(nBooks / 2));
-  return Math.max(2, Math.min(raw, 8, nBooks));
+  let k = Math.max(2, Math.min(raw, 8, nBooks));
+  // With enough analyzed books, prefer finer groups (up to 4) instead of staying at 2.
+  if (nBooks >= 8) {
+    k = Math.max(k, Math.min(4, nBooks));
+  } else if (nBooks >= 6) {
+    k = Math.max(k, Math.min(3, nBooks));
+  }
+  return k;
 }
