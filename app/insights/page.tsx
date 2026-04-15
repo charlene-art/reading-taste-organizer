@@ -5,6 +5,9 @@ import { ToneBarChart, PlotPatternBarChart } from "@/components/InsightCharts";
 import { ReclusterButton } from "@/components/ReclusterButton";
 import { WritingPromptsButton } from "@/components/WritingPromptsButton";
 
+/** Always read fresh DB data (Vercel otherwise prerenders this page at build time). */
+export const dynamic = "force-dynamic";
+
 export default async function InsightsPage() {
   const [agg, clusters] = await Promise.all([
     getInsightAggregates(),
