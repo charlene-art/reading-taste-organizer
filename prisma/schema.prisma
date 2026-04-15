@@ -1,0 +1,46 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  id        String   @id @default(cuid())
+  title     String
+  author    String
+  readDate  DateTime?
+  notes     String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  analyses BookAnalysis[]
+}
+
+model BookAnalysis {
+  id     String @id @default(cuid())
+  bookId String
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  summary       String
+  themesJson    String // JSON string[]
+  toneJson      String // JSON string[] — multiple tone tags
+  plotPatternsJson String // JSON string[]
+  embeddingJson String? // JSON number[] | null before embedded
+  model         String
+  inferredOnly  Boolean @default(false) // true when no/weak notes
+  createdAt     DateTime @default(now())
+
+  @@index([bookId])
+}
+
+model ClusterRun {
+  id           String   @id @default(cuid())
+  k            Int
+  labelsJson   String   // JSON Record<bookId, clusterIndex>
+  namesJson    String   // JSON Record<clusterIndex, string> short labels
+  createdAt    DateTime @default(now())
+}

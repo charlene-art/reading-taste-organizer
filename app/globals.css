@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0f1419;
+  --foreground: #e7e9ea;
+  --muted: #8b98a5;
+  --card: #16181c;
+  --border: #2f3336;
+  --accent: #1d9bf0;
+  --accent-muted: #1a8cd8;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover {
+  text-decoration: underline;
+}
