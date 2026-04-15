@@ -5,6 +5,7 @@ import { parseAnalysis } from "@/lib/parse-analysis";
 import { getLatestClusterRun } from "@/lib/cluster-service";
 import { updateBook } from "@/app/actions/books";
 import { AnalyzeButton } from "@/components/AnalyzeButton";
+import { DeleteBookButton } from "@/components/DeleteBookButton";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -174,6 +175,17 @@ export default async function BookDetailPage({ params }: Params) {
             themes, tone, and patterns.
           </p>
         )}
+      </section>
+
+      <section className="border-t border-[var(--border)] pt-8">
+        <h3 className="mb-2 text-sm font-medium uppercase tracking-wide text-[var(--muted)]">
+          Remove from library
+        </h3>
+        <p className="mb-3 max-w-lg text-sm text-[var(--muted)]">
+          Deletes this book and its AI analysis from the database. Cluster runs
+          are unchanged; use Insights to recompute clusters if counts look off.
+        </p>
+        <DeleteBookButton bookId={book.id} title={book.title} />
       </section>
     </div>
   );
